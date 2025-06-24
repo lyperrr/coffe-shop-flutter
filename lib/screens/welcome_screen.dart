@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_button.dart';
+import '../screens/menu_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -8,7 +9,8 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -22,13 +24,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
   }
@@ -45,13 +49,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/img/welcome.jpg',
-            fit: BoxFit.cover,
-          ),
-          Container(
-            color: const Color(0x99000000),
-          ),
+          Image.asset('assets/img/welcome.jpg', fit: BoxFit.cover),
+          Container(color: const Color(0x99000000)),
           Padding(
             padding: const EdgeInsets.all(32),
             child: FadeTransition(
@@ -80,8 +79,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                     CustomButton(
                       text: "Get Started",
                       onPressed: () {
-                        print("Get Started clicked");
-                        // Navigator.push(...);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MenuScreen(),
+                          ),
+                        );
                       },
                     ),
                   ],
