@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/menu_screen.dart';
-import 'screens/order_screen.dart'; // Import OrdersScreen
-import 'screens/auth/register_screen.dart';
+import 'screens/order_screen.dart';
 import 'constants/colors.dart';
 import 'widgets/custom_bottom_nav.dart';
 
 void main() {
-  runApp(const MenuApp());
+  runApp(const WelcomeApp());
 }
 
-class MenuApp extends StatelessWidget {
-  const MenuApp({super.key});
+class WelcomeApp extends StatelessWidget {
+  const WelcomeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Welcome',
+      title: 'Yesort App',
       theme: ThemeData(
         fontFamily: 'Arial',
         primaryColor: primaryColor,
         scaffoldBackgroundColor: backgroundColor,
       ),
-      home: const HomeScreen(),
+      home: const WelcomeScreen(), // Sudah tidak error
     );
   }
 }

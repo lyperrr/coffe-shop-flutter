@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../widgets/order_card.dart';
-import '../widgets/order_modal.dart'; // Import the new modal widget
+import '../widgets/order_modal.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -12,16 +12,6 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  int selectedIndex = 0;
-
-  final List<Widget> pages = [
-    OrdersContent(),
-    Center(child: Text('Cart Page', style: TextStyle(fontSize: 20))),
-    Center(child: Text('Add Something', style: TextStyle(fontSize: 20))),
-    Center(child: Text('History Page', style: TextStyle(fontSize: 20))),
-    Center(child: Text('Wishlist Page', style: TextStyle(fontSize: 20))),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +31,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
         elevation: 0,
       ),
-      body: pages[selectedIndex],
+      body: OrdersContent(),
     );
   }
 }

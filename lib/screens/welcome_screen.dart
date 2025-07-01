@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_button.dart';
-import '../screens/menu_screen.dart';
+import '../main.dart'; // Untuk akses ke HomeScreen
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -82,7 +82,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MenuScreen(),
+                            builder:
+                                (context) =>
+                                    const HomeScreen(), // Navigasi ke HomeScreen
                           ),
                         );
                       },
