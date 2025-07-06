@@ -1,40 +1,43 @@
 class MenuModel {
-  final int id;
-  final String name;
-  final String category;
-  final String price;
-  final int stock;
-  final String description;
+  final int? id;
+  final String namaMenu;
+  final String kategori;
+  final String harga;
+  final int stok;
+  final String deskripsi;
   final String imageBase64;
-  final String createdAt;
-  final String updatedAt;
-  final int quantity;
 
   MenuModel({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.price,
-    required this.stock,
-    required this.description,
+    this.id,
+    required this.namaMenu,
+    required this.kategori,
+    required this.harga,
+    required this.stok,
+    required this.deskripsi,
     required this.imageBase64,
-    required this.createdAt,
-    required this.updatedAt,
-    this.quantity = 0,
   });
 
   factory MenuModel.fromJson(Map<String, dynamic> json) {
     return MenuModel(
-      id: int.parse(json['id'].toString()),
-      name: json['nama_menu'] ?? '',
-      category: json['kategori'] ?? '',
-      price: json['harga'].toString(),
-      stock: int.parse(json['stok'].toString()),
-      description: json['deskripsi'] ?? '',
+      id: int.tryParse(json['id'].toString()),
+      namaMenu: json['nama_menu'] ?? '',
+      kategori: json['kategori'] ?? '',
+      harga: json['harga'].toString(),
+      stok: int.tryParse(json['stok'].toString()) ?? 0,
+      deskripsi: json['deskripsi'] ?? '',
       imageBase64: json['gambar'] ?? '',
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
-      quantity: 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama_menu': namaMenu,
+      'kategori': kategori,
+      'harga': harga,
+      'stok': stok,
+      'deskripsi': deskripsi,
+      'gambar': imageBase64,
+    };
   }
 }

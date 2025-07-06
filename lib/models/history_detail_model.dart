@@ -2,14 +2,14 @@ class HistoryDetailModel {
   final int id;
   final int historyId;
   final int menuId;
-  final int quantity;
-  final String subtotal;
+  final int jumlah;
+  final double subtotal;
 
   HistoryDetailModel({
     required this.id,
     required this.historyId,
     required this.menuId,
-    required this.quantity,
+    required this.jumlah,
     required this.subtotal,
   });
 
@@ -18,8 +18,18 @@ class HistoryDetailModel {
       id: int.parse(json['id'].toString()),
       historyId: int.parse(json['history_id'].toString()),
       menuId: int.parse(json['menu_id'].toString()),
-      quantity: int.parse(json['jumlah'].toString()),
-      subtotal: json['subtotal'].toString(),
+      jumlah: int.parse(json['jumlah'].toString()),
+      subtotal: double.tryParse(json['subtotal'].toString()) ?? 0.0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'history_id': historyId,
+      'menu_id': menuId,
+      'jumlah': jumlah,
+      'subtotal': subtotal,
+    };
   }
 }

@@ -3,68 +3,97 @@ import 'package:http/http.dart' as http;
 import '../models/menu_model.dart';
 import '../models/favorite_model.dart';
 import '../models/history_model.dart';
-import '../models/history_detail_model.dart';
 import '../models/pemasukan_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1/project_uas_api';
+  //Ganti IP jika pakai device fisik (bukan emulator)
+  static const String _baseUrl = 'http://127.0.0.1/project_uas_api';
 
-  // Menu
-  static Future<List<MenuModel>> fetchMenus() async {
-    final response = await http.get(Uri.parse('$baseUrl/menu/index.php'));
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => MenuModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load menu');
-    }
+  //MENU
+static Future<List<MenuModel>> fetchMenus() async {
+  final response = await http.get(Uri.parse('$_baseUrl/menu/index.php'));
+
+  print("Status Code: ${response.statusCode}");
+  print("Body: ${response.body}");
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    List menus = data['data'];
+    return menus.map((e) => MenuModel.fromJson(e)).toList();
+  } else {
+    throw Exception('Gagal mengambil data menu');
+  }
+}
+
+  static Future<bool> addMenu(MenuModel menu) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/menu/store.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(menu.toJson()),
+    );
+    return jsonDecode(response.body)['status'];
   }
 
-  // Favorite
+  static Future<bool> updateMenu(MenuModel menu) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/menu/update.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(menu.toJson()),
+    );
+    return jsonDecode(response.body)['status'];
+  }
+
+  static Future<bool> deleteMenu(int id) async {
+    final response = await http.get(Uri.parse('$_baseUrl/menu/delete.php?id=$id'));
+    return jsonDecode(response.body)['status'];
+  }
+
+  //FAVORITE
   static Future<List<FavoriteModel>> fetchFavorites() async {
-    final response = await http.get(Uri.parse('$baseUrl/favorite/index.php'));
+    final response = await http.get(Uri.parse('$_baseUrl/favorite/index.php'));
+
     if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => FavoriteModel.fromJson(json)).toList();
+      final data = jsonDecode(response.body);
+      List favs = data['data'];
+      return favs.map((e) => FavoriteModel.fromJson(e)).toList();
     } else {
-      throw Exception('Failed to load favorites');
+      throw Exception('Gagal mengambil data favorite');
     }
   }
 
-  // History
-  static Future<List<HistoryModel>> fetchHistories() async {
-    final response = await http.get(Uri.parse('$baseUrl/history/index.php'));
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => HistoryModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load histories');
-    }
-  }
-
-  // History Detail
-  static Future<List<HistoryDetailModel>> fetchHistoryDetails() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/history_detail/index.php'),
+  static Future<bool> addFavorite(int menuId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/favorite/store.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"menu_id": menuId}),
     );
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => HistoryDetailModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load history details');
-    }
+    return jsonDecode(response.body)['status'];
   }
 
-  // Pemasukan Harian
-  static Future<List<PemasukanModel>> fetchPemasukanHarian() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/pemasukan_harian/index.php'),
+  static Future<bool> deleteFavorite(int id) async {
+    final response = await http.get(Uri.parse('$_baseUrl/favorite/delete.php?id=$id'));
+    return jsonDecode(response.body)['status'];
+  }
+
+  //HISTORY (TRANSAKSI)
+  static Future<bool> submitTransaction(HistoryModel history) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/history/store.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(history.toJson()),
     );
+    return jsonDecode(response.body)['status'];
+  }
+
+  //PEMASUKAN HARIAN
+  static Future<PemasukanModel?> fetchPemasukanHarian() async {
+    final response = await http.get(Uri.parse('$_baseUrl/pemasukan/daily.php'));
+
     if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => PemasukanModel.fromJson(json)).toList();
+      final data = jsonDecode(response.body);
+      return PemasukanModel.fromJson(data['data']);
     } else {
-      throw Exception('Failed to load pemasukan harian');
+      return null;
     }
   }
 }

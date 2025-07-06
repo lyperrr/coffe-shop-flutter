@@ -1,25 +1,20 @@
 class PemasukanModel {
-  final int id;
-  final String date;
-  final String totalIncome;
-  final int totalTransactions;
-  final String createdAt;
+  final String tanggal;
+  final double totalPemasukan;
+  final int jumlahTransaksi;
 
   PemasukanModel({
-    required this.id,
-    required this.date,
-    required this.totalIncome,
-    required this.totalTransactions,
-    required this.createdAt,
+    required this.tanggal,
+    required this.totalPemasukan,
+    required this.jumlahTransaksi,
   });
 
   factory PemasukanModel.fromJson(Map<String, dynamic> json) {
     return PemasukanModel(
-      id: int.parse(json['id'].toString()),
-      date: json['tanggal'] ?? '',
-      totalIncome: json['total_pemasukan'].toString(),
-      totalTransactions: int.parse(json['jumlah_transaksi'].toString()),
-      createdAt: json['created_at'] ?? '',
+      tanggal: json['tanggal'],
+      totalPemasukan:
+          double.tryParse(json['total_pemasukan'].toString()) ?? 0.0,
+      jumlahTransaksi: int.tryParse(json['jumlah_transaksi'].toString()) ?? 0,
     );
   }
 }

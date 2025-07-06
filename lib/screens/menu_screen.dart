@@ -142,14 +142,15 @@ class _MenuContentState extends State<MenuContent> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.68,
+                    childAspectRatio: 0.55,
                   ),
                   itemBuilder: (context, index) {
                     final item = menus[index];
                     return MenuCard(
-                      name: item.name,
-                      price: item.price,
-                      quantity: item.quantity,
+                      name: item.namaMenu,
+                      price: item.harga,
+                      kategori: item.kategori,
+                      quantity: item.stok,
                       imageBase64: item.imageBase64,
                     );
                   },

@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
 
-class MenuCard extends StatelessWidget {
+class MenuCard extends StatefulWidget {
   final String name;
   final String price;
+  final String kategori;
   final int quantity;
   final String imageBase64;
 
@@ -12,9 +13,33 @@ class MenuCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.price,
+    required this.kategori,
     required this.quantity,
     required this.imageBase64,
   });
+
+  @override
+  State<MenuCard> createState() => _MenuCardState();
+}
+
+class _MenuCardState extends State<MenuCard> {
+  int orderQuantity = 0;
+
+  void _increaseQuantity() {
+    setState(() {
+      if (orderQuantity < widget.quantity) {
+        orderQuantity++;
+      }
+    });
+  }
+
+  void _decreaseQuantity() {
+    setState(() {
+      if (orderQuantity > 0) {
+        orderQuantity--;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +53,7 @@ class MenuCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gambar + Favorite Icon
+          // Gambar
           Stack(
             children: [
               Container(
@@ -41,13 +66,13 @@ class MenuCard extends StatelessWidget {
                   color: Colors.grey[300],
                 ),
                 child:
-                    imageBase64.isNotEmpty
+                    widget.imageBase64.isNotEmpty
                         ? ClipRRect(
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(20),
                           ),
                           child: Image.memory(
-                            base64Decode(imageBase64),
+                            base64Decode(widget.imageBase64),
                             fit: BoxFit.cover,
                             width: double.infinity,
                             height: 120,
@@ -78,55 +103,74 @@ class MenuCard extends StatelessWidget {
             ],
           ),
 
-          // Informasi Menu
+          // Konten
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Chip(
-                  label: Text("Iced", style: TextStyle(fontSize: 14)),
+                Chip(
+                  label: Text(
+                    widget.kategori.isNotEmpty ? widget.kategori : 'Kategori',
+                    style: const TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                   backgroundColor: backgroundColor,
-                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 1),
                   visualDensity: VisualDensity.compact,
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  name,
+                  widget.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text('Rp. $price', style: const TextStyle(fontSize: 12)),
-                const SizedBox(height: 12),
+                Text(
+                  'Rp. ${widget.price}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Stok: ${widget.quantity}',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
 
-                // Qty dan tombol keranjang
+                // Counter +/-
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _circleButton(Icons.add),
+                    _circleButton(Icons.remove, _decreaseQuantity),
                     const SizedBox(width: 8),
                     Text(
-                      '$quantity',
+                      '$orderQuantity',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 8),
-                    _circleButton(Icons.remove),
-                    const Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: activeItems,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(6),
-                      child: const Icon(
-                        Icons.shopping_cart_outlined,
-                        size: 18,
-                        color: textWhite,
-                      ),
-                    ),
+                    _circleButton(Icons.add, _increaseQuantity),
                   ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Tombol keranjang
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: activeItems,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: const Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 18,
+                      color: textWhite,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -136,15 +180,18 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  Widget _circleButton(IconData icon) {
-    return Container(
-      height: 25,
-      width: 25,
-      decoration: const BoxDecoration(
-        color: activeItems,
-        shape: BoxShape.circle,
+  Widget _circleButton(IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 25,
+        width: 25,
+        decoration: const BoxDecoration(
+          color: activeItems,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 14, color: textWhite),
       ),
-      child: Icon(icon, size: 14, color: textWhite),
     );
   }
 }
