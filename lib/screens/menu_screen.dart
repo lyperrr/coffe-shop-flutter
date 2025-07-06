@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
 import '../widgets/menu_card.dart';
-import '../widgets/custom_bottom_nav.dart';
+import '../models/menu_model.dart';
+import '../services/api_service.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -45,8 +46,21 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 }
 
-class MenuContent extends StatelessWidget {
+class MenuContent extends StatefulWidget {
   const MenuContent({super.key});
+
+  @override
+  State<MenuContent> createState() => _MenuContentState();
+}
+
+class _MenuContentState extends State<MenuContent> {
+  late Future<List<MenuModel>> _futureMenus;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureMenus = ApiService.fetchMenus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,21 +99,62 @@ class MenuContent extends StatelessWidget {
           ),
         ),
 
-        // Grid Menu
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.68, // atur tinggi card
-              children: const [
-                MenuCard(name: 'Latte', price: '17.000', quantity: 1),
-                MenuCard(name: 'Espresso', price: '15.000', quantity: 1),
-                MenuCard(name: 'Cappuccino', price: '18.000', quantity: 1),
-                MenuCard(name: 'Mocha', price: '19.000', quantity: 1),
-              ],
+            child: FutureBuilder<List<MenuModel>>(
+              future: _futureMenus,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.restaurant_menu,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Menu belum tersedia',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Silakan tambahkan menu terlebih dahulu.',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final menus = snapshot.data!;
+
+                return GridView.builder(
+                  itemCount: menus.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.68,
+                  ),
+                  itemBuilder: (context, index) {
+                    final item = menus[index];
+                    return MenuCard(
+                      name: item.name,
+                      price: item.price,
+                      quantity: item.quantity,
+                      imageBase64: item.imageBase64,
+                    );
+                  },
+                );
+              },
             ),
           ),
         ),

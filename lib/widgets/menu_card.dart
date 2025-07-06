@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
 
@@ -5,12 +6,14 @@ class MenuCard extends StatelessWidget {
   final String name;
   final String price;
   final int quantity;
+  final String imageBase64;
 
   const MenuCard({
     super.key,
     required this.name,
     required this.price,
     required this.quantity,
+    required this.imageBase64,
   });
 
   @override
@@ -25,19 +28,36 @@ class MenuCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gambar + Icon Favorite
+          // Gambar + Favorite Icon
           Stack(
             children: [
               Container(
                 height: 120,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),
+                  color: Colors.grey[300],
                 ),
-                child: const Icon(Icons.image, size: 40, color: anActiveItems),
+                child:
+                    imageBase64.isNotEmpty
+                        ? ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                          child: Image.memory(
+                            base64Decode(imageBase64),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 120,
+                          ),
+                        )
+                        : const Icon(
+                          Icons.image,
+                          size: 40,
+                          color: anActiveItems,
+                        ),
               ),
               Positioned(
                 top: 8,
@@ -58,7 +78,7 @@ class MenuCard extends StatelessWidget {
             ],
           ),
 
-          // Informasi Produk
+          // Informasi Menu
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Column(
@@ -82,7 +102,7 @@ class MenuCard extends StatelessWidget {
                 Text('Rp. $price', style: const TextStyle(fontSize: 12)),
                 const SizedBox(height: 12),
 
-                // Qty + Cart
+                // Qty dan tombol keranjang
                 Row(
                   children: [
                     _circleButton(Icons.add),
