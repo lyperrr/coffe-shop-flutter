@@ -10,20 +10,20 @@ class ApiService {
   static const String _baseUrl = 'http://127.0.0.1/project_uas_api';
 
   //MENU
-static Future<List<MenuModel>> fetchMenus() async {
-  final response = await http.get(Uri.parse('$_baseUrl/menu/index.php'));
+  static Future<List<MenuModel>> fetchMenus() async {
+    final response = await http.get(Uri.parse('$_baseUrl/menu/index.php'));
 
-  print("Status Code: ${response.statusCode}");
-  print("Body: ${response.body}");
+    print("Status Code: ${response.statusCode}");
+    print("Body: ${response.body}");
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    List menus = data['data'];
-    return menus.map((e) => MenuModel.fromJson(e)).toList();
-  } else {
-    throw Exception('Gagal mengambil data menu');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      List menus = data['data'];
+      return menus.map((e) => MenuModel.fromJson(e)).toList();
+    } else {
+      throw Exception('Gagal mengambil data menu');
+    }
   }
-}
 
   static Future<bool> addMenu(MenuModel menu) async {
     final response = await http.post(
@@ -35,17 +35,39 @@ static Future<List<MenuModel>> fetchMenus() async {
   }
 
   static Future<bool> updateMenu(MenuModel menu) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/menu/update.php'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(menu.toJson()),
-    );
-    return jsonDecode(response.body)['status'];
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/menu/update.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(menu.toJson()),
+      );
+
+      print("BODY SENT: ${jsonEncode(menu.toJson())}");
+      print("STATUS CODE: ${response.statusCode}");
+      print("RESPONSE BODY: ${response.body}");
+
+      final data = jsonDecode(response.body);
+      return data['status'];
+    } catch (e) {
+      print("ERROR UPDATE MENU: $e");
+      return false;
+    }
   }
 
-  static Future<bool> deleteMenu(int id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/menu/delete.php?id=$id'));
-    return jsonDecode(response.body)['status'];
+  static Future<bool> deleteMenu(String namaMenu) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/menu/delete.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'nama_menu': namaMenu}),
+      );
+
+      final data = jsonDecode(response.body);
+      return data['status'] == true;
+    } catch (e) {
+      print("Delete Error: $e");
+      return false;
+    }
   }
 
   //FAVORITE
@@ -71,7 +93,9 @@ static Future<List<MenuModel>> fetchMenus() async {
   }
 
   static Future<bool> deleteFavorite(int id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/favorite/delete.php?id=$id'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/favorite/delete.php?id=$id'),
+    );
     return jsonDecode(response.body)['status'];
   }
 

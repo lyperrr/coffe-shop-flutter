@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
+import 'package:project_uas/services/api_service.dart';
+import '../models/menu_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/order_provider.dart';
+import '../screens/edit_menu_screen.dart';
 
 class MenuCard extends StatefulWidget {
   final String name;
@@ -33,6 +38,47 @@ class _MenuCardState extends State<MenuCard> {
     });
   }
 
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text("Hapus Menu"),
+            content: const Text("Apakah Anda yakin ingin menghapus menu ini?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text("Batal"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+
+                  // Call API delete (Ganti dengan ID asli)
+                  final success = await ApiService.deleteMenu(
+                    widget.name,
+                  ); // Ganti param sesuai API
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Menu berhasil dihapus")),
+                    );
+
+                    // Hapus dari tampilan
+                    setState(() => orderQuantity = 0);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Gagal menghapus menu")),
+                    );
+                  }
+                },
+                child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+    );
+  }
+
   void _decreaseQuantity() {
     setState(() {
       if (orderQuantity > 0) {
@@ -53,7 +99,7 @@ class _MenuCardState extends State<MenuCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gambar
+          // Gambar + tombol favorite dan edit
           Stack(
             children: [
               Container(
@@ -84,6 +130,7 @@ class _MenuCardState extends State<MenuCard> {
                           color: anActiveItems,
                         ),
               ),
+              // Favorite button
               Positioned(
                 top: 8,
                 right: 8,
@@ -100,10 +147,65 @@ class _MenuCardState extends State<MenuCard> {
                   ),
                 ),
               ),
+              // Edit button
+              Positioned(
+                top: 8,
+                left: 8,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => EditMenuScreen(
+                              menu: MenuModel(
+                                id: 0, // Ganti sesuai data asli jika ada
+                                namaMenu: widget.name,
+                                kategori: widget.kategori,
+                                harga: widget.price,
+                                stok: widget.quantity,
+                                deskripsi: '', // Bisa diisi jika ada
+                                imageBase64: widget.imageBase64,
+                              ),
+                            ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: textWhite,
+                    ),
+                    child: const Icon(Icons.edit, size: 20, color: Colors.grey),
+                  ),
+                ),
+              ),
+
+              // Delete button
+              Positioned(
+                top: 50,
+                left: 8,
+                child: GestureDetector(
+                  onTap: () => _showDeleteDialog(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: textWhite,
+                    ),
+                    child: const Icon(
+                      Icons.delete,
+                      size: 20,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
 
-          // Konten
+          // Konten menu
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Column(
@@ -158,17 +260,43 @@ class _MenuCardState extends State<MenuCard> {
                 const SizedBox(height: 10),
 
                 // Tombol keranjang
+                // Tombol keranjang
                 Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: activeItems,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.all(6),
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 18,
-                      color: textWhite,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (orderQuantity > 0) {
+                        Provider.of<OrderProvider>(
+                          context,
+                          listen: false,
+                        ).addOrder(
+                          OrderItem(
+                            name: widget.name,
+                            price: widget.price,
+                            quantity: orderQuantity,
+                            imageBase64: widget.imageBase64,
+                          ),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Item ditambahkan ke keranjang'),
+                          ),
+                        );
+
+                        setState(() => orderQuantity = 0); // reset counter
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: activeItems,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 18,
+                        color: textWhite,
+                      ),
                     ),
                   ),
                 ),

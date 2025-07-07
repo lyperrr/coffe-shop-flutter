@@ -19,13 +19,13 @@ class MenuModel {
 
   factory MenuModel.fromJson(Map<String, dynamic> json) {
     return MenuModel(
-      id: int.tryParse(json['id'].toString()),
-      namaMenu: json['nama_menu'] ?? '',
-      kategori: json['kategori'] ?? '',
-      harga: json['harga'].toString(),
-      stok: int.tryParse(json['stok'].toString()) ?? 0,
-      deskripsi: json['deskripsi'] ?? '',
-      imageBase64: json['gambar'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? ''),
+      namaMenu: json['nama_menu']?.toString() ?? '',
+      kategori: json['kategori']?.toString() ?? '',
+      harga: json['harga']?.toString() ?? '0',
+      stok: int.tryParse(json['stok']?.toString() ?? '0') ?? 0,
+      deskripsi: json['deskripsi']?.toString() ?? '',
+      imageBase64: json['gambar']?.toString() ?? '',
     );
   }
 

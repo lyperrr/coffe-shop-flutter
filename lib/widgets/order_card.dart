@@ -1,96 +1,93 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
 
-class OrderCard extends StatefulWidget {
+class OrderCard extends StatelessWidget {
   final String name;
   final String price;
   final int quantity;
+  final String imageBase64;
+  final bool isSelected;
+  final ValueChanged<bool> onSelected;
 
   const OrderCard({
     super.key,
     required this.name,
     required this.price,
     required this.quantity,
+    required this.imageBase64,
+    required this.isSelected,
+    required this.onSelected,
   });
 
   @override
-  State<OrderCard> createState() => _OrderCardState();
-}
-
-class _OrderCardState extends State<OrderCard> {
-  bool isChecked = false;
-
-  @override
   Widget build(BuildContext context) {
-    return Card(
-      color: textWhite,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: [
-          // Checkbox on the left
-          Checkbox(
-            value: isChecked,
-            onChanged: (bool? value) {
-              setState(() {
-                isChecked = value ?? false;
-              });
-            },
-            activeColor: activeItems,
-          ),
-          // Placeholder for image
-          Container(
-            width: 150,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
-              ),
+    return GestureDetector(
+      onTap: () => onSelected(!isSelected),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: textWhite,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade300,
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
-            child: const Icon(Icons.image, size: 40, color: Colors.grey),
-          ),
-          Expanded(
-            child: Padding(
+          ],
+        ),
+        child: Row(
+          children: [
+            Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(widget.price),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Text('Qty: '),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: activeItems,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          widget.quantity.toString(),
-                          style: const TextStyle(color: textWhite),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              child: Checkbox(
+                value: isSelected,
+                onChanged: (value) => onSelected(value!),
+                activeColor: activeItems,
               ),
             ),
-          ),
-        ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child:
+                  imageBase64.isNotEmpty
+                      ? Image.memory(
+                        base64Decode(imageBase64),
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image, color: Colors.grey),
+                      ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('Harga: Rp. $price'),
+                    const SizedBox(height: 4),
+                    Text('Jumlah: $quantity'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

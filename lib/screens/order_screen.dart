@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:project_uas/constants/colors.dart';
+import 'package:provider/provider.dart';
+import '../providers/order_provider.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_modal.dart';
 
-class OrdersScreen extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:project_uas/constants/colors.dart';
+import 'package:provider/provider.dart';
+import '../providers/order_provider.dart';
+import '../widgets/order_card.dart';
+
+class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
 
-  @override
-  State<OrdersScreen> createState() => _OrdersScreenState();
-}
-
-class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,35 +34,75 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
         elevation: 0,
       ),
-      body: OrdersContent(),
+      body: const OrdersContent(),
     );
   }
 }
 
-class OrdersContent extends StatelessWidget {
+class OrdersContent extends StatefulWidget {
   const OrdersContent({super.key});
 
   @override
+  State<OrdersContent> createState() => _OrdersContentState();
+}
+
+class _OrdersContentState extends State<OrdersContent> {
+  final List<String> selectedOrderNames = [];
+
+  @override
   Widget build(BuildContext context) {
+    final orders = Provider.of<OrderProvider>(context).orders;
+
+    final selectedOrders =
+        orders
+            .where((order) => selectedOrderNames.contains(order.name))
+            .toList();
+
+    int totalQuantity = selectedOrders.fold(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
+    int totalPrice = selectedOrders.fold(0, (sum, item) {
+      final cleanPrice =
+          int.tryParse(item.price.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      return sum + (cleanPrice * item.quantity);
+    });
+
     return Column(
       children: [
-        // Order List (Grid)
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: GridView.count(
-              crossAxisCount: 1, // Single column for order cards
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 2.5, // Adjust to match card height
-              children: [
-                OrderCard(name: 'Iced Latte', price: 'Rp. 11.500', quantity: 2),
-                // Add more OrderCard widgets as needed
-              ],
-            ),
+            child:
+                orders.isEmpty
+                    ? const Center(child: Text('Belum ada pesanan'))
+                    : ListView(
+                      children:
+                          orders
+                              .map(
+                                (order) => OrderCard(
+                                  name: order.name,
+                                  price: order.price,
+                                  quantity: order.quantity,
+                                  imageBase64: order.imageBase64 ?? '',
+                                  isSelected: selectedOrderNames.contains(
+                                    order.name,
+                                  ),
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      if (selected) {
+                                        selectedOrderNames.add(order.name);
+                                      } else {
+                                        selectedOrderNames.remove(order.name);
+                                      }
+                                    });
+                                  },
+                                ),
+                              )
+                              .toList(),
+                    ),
           ),
         ),
-        // Total Section
         Container(
           padding: const EdgeInsets.all(16.0),
           color: primaryColor,
@@ -68,32 +111,48 @@ class OrdersContent extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    'Total Orders: 2',
-                    style: TextStyle(color: textWhite, fontSize: 16),
+                    'Total Orders: $totalQuantity',
+                    style: const TextStyle(color: textWhite, fontSize: 16),
                   ),
                   Text(
-                    'Total Price: Rp. 23.000',
-                    style: TextStyle(color: textWhite, fontSize: 16),
+                    'Total Price: Rp. $totalPrice',
+                    style: const TextStyle(color: textWhite, fontSize: 16),
                   ),
                 ],
               ),
               ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => OrderModal(
-                          onOrderPlaced: () {
-                            // Add logic here if needed when order is placed
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Order placed!')),
-                            );
-                          },
-                        ),
-                  );
-                },
+                onPressed:
+                    selectedOrders.isNotEmpty
+                        ? () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => OrderModal(
+                                  onOrderPlaced: () {
+                                    // Lakukan aksi setelah modal dikonfirmasi
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Order placed!'),
+                                      ),
+                                    );
+
+                                    setState(() {
+                                      selectedOrderNames
+                                          .clear(); // Kosongkan pilihan setelah order
+                                    });
+
+                                    // Jika kamu ingin menghapus order yang dipilih dari daftar:
+                                    // for (var item in selectedOrders) {
+                                    //   Provider.of<OrderProvider>(context, listen: false)
+                                    //       .removeOrderByName(item.name);
+                                    // }
+                                  },
+                                ),
+                          );
+                        }
+                        : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: activeItems,
                   shape: RoundedRectangleBorder(
