@@ -24,7 +24,7 @@ class CustomBottomNav extends StatelessWidget {
           _buildNavItem(Icons.shopping_cart_outlined, 'Cart', 1, currentIndex),
           _buildCenterButton(),
           _buildNavItem(Icons.history, 'History', 3, currentIndex),
-          _buildNavItem(Icons.favorite_border, 'Wishlist', 4, currentIndex),
+          _buildNavItem(Icons.favorite_border, 'Favorite', 4, currentIndex),
         ],
       ),
     );
@@ -75,4 +75,3 @@ class CustomBottomNav extends StatelessWidget {
     );
   }
 }
-

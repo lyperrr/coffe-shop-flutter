@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:project_uas/constants/colors.dart';
 import 'package:provider/provider.dart';
+import 'package:project_uas/constants/colors.dart';
 import '../providers/order_provider.dart';
-import '../widgets/custom_bottom_nav.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_modal.dart';
-
-import 'package:flutter/material.dart';
-import 'package:project_uas/constants/colors.dart';
-import 'package:provider/provider.dart';
-import '../providers/order_provider.dart';
-import '../widgets/order_card.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
@@ -52,7 +45,6 @@ class _OrdersContentState extends State<OrdersContent> {
   @override
   Widget build(BuildContext context) {
     final orders = Provider.of<OrderProvider>(context).orders;
-
     final selectedOrders =
         orders
             .where((order) => selectedOrderNames.contains(order.name))
@@ -62,6 +54,7 @@ class _OrdersContentState extends State<OrdersContent> {
       0,
       (sum, item) => sum + item.quantity,
     );
+
     int totalPrice = selectedOrders.fold(0, (sum, item) {
       final cleanPrice =
           int.tryParse(item.price.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -75,31 +68,45 @@ class _OrdersContentState extends State<OrdersContent> {
             padding: const EdgeInsets.all(16.0),
             child:
                 orders.isEmpty
-                    ? const Center(child: Text('Belum ada pesanan'))
+                    ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Belum ada pesanan',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    )
                     : ListView(
                       children:
-                          orders
-                              .map(
-                                (order) => OrderCard(
-                                  name: order.name,
-                                  price: order.price,
-                                  quantity: order.quantity,
-                                  imageBase64: order.imageBase64 ?? '',
-                                  isSelected: selectedOrderNames.contains(
-                                    order.name,
-                                  ),
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        selectedOrderNames.add(order.name);
-                                      } else {
-                                        selectedOrderNames.remove(order.name);
-                                      }
-                                    });
-                                  },
-                                ),
-                              )
-                              .toList(),
+                          orders.map((order) {
+                            return OrderCard(
+                              name: order.name,
+                              price: order.price,
+                              quantity: order.quantity,
+                              imageBase64: order.imageBase64 ?? '',
+                              isSelected: selectedOrderNames.contains(
+                                order.name,
+                              ),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedOrderNames.add(order.name);
+                                  } else {
+                                    selectedOrderNames.remove(order.name);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
                     ),
           ),
         ),
@@ -131,7 +138,6 @@ class _OrdersContentState extends State<OrdersContent> {
                             builder:
                                 (context) => OrderModal(
                                   onOrderPlaced: () {
-                                    // Lakukan aksi setelah modal dikonfirmasi
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Order placed!'),
@@ -139,11 +145,10 @@ class _OrdersContentState extends State<OrdersContent> {
                                     );
 
                                     setState(() {
-                                      selectedOrderNames
-                                          .clear(); // Kosongkan pilihan setelah order
+                                      selectedOrderNames.clear();
                                     });
 
-                                    // Jika kamu ingin menghapus order yang dipilih dari daftar:
+                                    // Optional: hapus order dari daftar
                                     // for (var item in selectedOrders) {
                                     //   Provider.of<OrderProvider>(context, listen: false)
                                     //       .removeOrderByName(item.name);

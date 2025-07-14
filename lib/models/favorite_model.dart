@@ -1,23 +1,31 @@
 class FavoriteModel {
-  final int id;
-  final int menuId;
-  final String namaMenu;
+  final String name;
+  final String price;
+  final String kategori;
+  final String imageBase64;
 
   FavoriteModel({
-    required this.id,
-    required this.menuId,
-    required this.namaMenu,
+    required this.name,
+    required this.price,
+    required this.kategori,
+    required this.imageBase64,
   });
 
   factory FavoriteModel.fromJson(Map<String, dynamic> json) {
     return FavoriteModel(
-      id: int.parse(json['id'].toString()),
-      menuId: int.parse(json['menu_id'].toString()),
-      namaMenu: json['nama_menu'] ?? '',
+      name: json['name'],
+      price: json['price'],
+      kategori: json['kategori'],
+      imageBase64: json['imageBase64'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'menu_id': menuId};
+    return {
+      'name': name,
+      'price': price,
+      'kategori': kategori,
+      'imageBase64': imageBase64,
+    };
   }
 }

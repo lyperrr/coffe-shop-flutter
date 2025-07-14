@@ -69,7 +69,6 @@ static Future<bool> deleteMenu(int id) async {
     }
   }
 
-
   //FAVORITE
   static Future<List<FavoriteModel>> fetchFavorites() async {
     final response = await http.get(Uri.parse('$_baseUrl/favorite/index.php'));
@@ -98,7 +97,6 @@ static Future<bool> deleteMenu(int id) async {
     );
     return jsonDecode(response.body)['status'];
   }
-
   //HISTORY (TRANSAKSI)
   static Future<bool> submitTransaction(HistoryModel history) async {
     final response = await http.post(

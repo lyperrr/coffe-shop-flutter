@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:project_uas/constants/colors.dart';
 import 'package:project_uas/services/api_service.dart';
 import '../models/menu_model.dart';
-import 'package:provider/provider.dart';
+import '../models/favorite_model.dart';
 import '../providers/order_provider.dart';
+import '../providers/favorite_provider.dart';
 import '../screens/edit_menu_screen.dart';
 
 class MenuCard extends StatefulWidget {
@@ -35,19 +37,15 @@ class _MenuCardState extends State<MenuCard> {
   int orderQuantity = 0;
 
   void _increaseQuantity() {
-    setState(() {
-      if (orderQuantity < widget.quantity) {
-        orderQuantity++;
-      }
-    });
+    if (orderQuantity < widget.quantity) {
+      setState(() => orderQuantity++);
+    }
   }
 
   void _decreaseQuantity() {
-    setState(() {
-      if (orderQuantity > 0) {
-        orderQuantity--;
-      }
-    });
+    if (orderQuantity > 0) {
+      setState(() => orderQuantity--);
+    }
   }
 
   void _showDeleteDialog(BuildContext context) {
@@ -86,6 +84,9 @@ class _MenuCardState extends State<MenuCard> {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final isFav = favoriteProvider.isFavorite(widget.name);
+
     return Container(
       width: 180,
       margin: const EdgeInsets.only(bottom: 16),
@@ -98,6 +99,7 @@ class _MenuCardState extends State<MenuCard> {
         children: [
           Stack(
             children: [
+              // Gambar
               Container(
                 height: 120,
                 width: double.infinity,
@@ -122,22 +124,49 @@ class _MenuCardState extends State<MenuCard> {
                         )
                         : const Icon(Icons.image, size: 40, color: Colors.grey),
               ),
+
+              // Tombol Favorite
               Positioned(
                 top: 8,
                 right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: textWhite,
-                  ),
-                  child: const Icon(
-                    Icons.favorite,
-                    size: 20,
-                    color: Colors.red,
+                child: GestureDetector(
+                  onTap: () {
+                    if (isFav) {
+                      favoriteProvider.removeFavorite(widget.name);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Dihapus dari favorit')),
+                      );
+                    } else {
+                      favoriteProvider.addFavorite(
+                        FavoriteModel(
+                          name: widget.name,
+                          price: widget.price,
+                          kategori: widget.kategori,
+                          imageBase64: widget.imageBase64,
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Ditambahkan ke favorit')),
+                      );
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ),
+
+              // Tombol Edit
               Positioned(
                 top: 8,
                 left: 8,
@@ -147,7 +176,7 @@ class _MenuCardState extends State<MenuCard> {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => EditMenuScreen(
+                            (_) => EditMenuScreen(
                               menu: MenuModel(
                                 id: widget.id,
                                 namaMenu: widget.name,
@@ -171,6 +200,8 @@ class _MenuCardState extends State<MenuCard> {
                   ),
                 ),
               ),
+
+              // Tombol Delete
               Positioned(
                 top: 50,
                 left: 8,
@@ -192,6 +223,8 @@ class _MenuCardState extends State<MenuCard> {
               ),
             ],
           ),
+
+          // Detail Menu
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Column(
@@ -223,6 +256,8 @@ class _MenuCardState extends State<MenuCard> {
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
+
+                // Counter
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -237,6 +272,8 @@ class _MenuCardState extends State<MenuCard> {
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // Tombol Keranjang
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -261,11 +298,11 @@ class _MenuCardState extends State<MenuCard> {
                       }
                     },
                     child: Container(
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: activeItems,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding: const EdgeInsets.all(6),
                       child: const Icon(
                         Icons.shopping_cart_outlined,
                         size: 18,
