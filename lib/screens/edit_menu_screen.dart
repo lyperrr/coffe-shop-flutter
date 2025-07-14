@@ -63,9 +63,7 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
       harga: _hargaController.text,
       stok: int.parse(_stokController.text),
       deskripsi: _deskripsiController.text,
-      imageBase64:
-          _base64Image ??
-          '', // Jika null, berarti user hapus?—tapi sebaiknya tidak null
+      imageBase64: _base64Image ?? '',
     );
 
     final success = await ApiService.updateMenu(updatedMenu);
