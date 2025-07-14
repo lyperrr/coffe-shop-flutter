@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:project_uas/constants/colors.dart';
 import 'package:project_uas/main.dart';
 import '../models/menu_model.dart';
-import '../services/api_service.dart'; // pastikan path ini sesuai
+import '../services/api_service.dart';
+import '../widgets/custom_text_field.dart';
+import '../widgets/custom_button.dart';
 
 class AddMenuScreen extends StatefulWidget {
   const AddMenuScreen({super.key});
@@ -15,11 +18,11 @@ class AddMenuScreen extends StatefulWidget {
 
 class _AddMenuScreenState extends State<AddMenuScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _kategoriController = TextEditingController();
-  final TextEditingController _hargaController = TextEditingController();
-  final TextEditingController _stokController = TextEditingController();
-  final TextEditingController _deskripsiController = TextEditingController();
+  final _namaController = TextEditingController();
+  final _kategoriController = TextEditingController();
+  final _hargaController = TextEditingController();
+  final _stokController = TextEditingController();
+  final _deskripsiController = TextEditingController();
 
   File? _image;
   String? _base64Image;
@@ -56,14 +59,34 @@ class _AddMenuScreenState extends State<AddMenuScreen> {
       final success = await ApiService.addMenu(newMenu);
 
       if (success) {
-        await showDialog(
+await showDialog(
           context: context,
           builder:
               (_) => AlertDialog(
-                title: const Text("Berhasil"),
-                content: const Text("Menu berhasil ditambahkan."),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: Colors.white,
+                title: Row(
+                  children: const [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text("Berhasil"),
+                  ],
+                ),
+                content: const Text(
+                  "Menu berhasil ditambahkan.",
+                  style: TextStyle(fontSize: 16),
+                ),
                 actions: [
                   TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: textWhite,
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text("OK"),
                   ),
@@ -71,7 +94,7 @@ class _AddMenuScreenState extends State<AddMenuScreen> {
               ),
         );
 
-        // Kembali dan arahkan ulang ke AddMenuScreen untuk reset form
+
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const HomeScreen(initialIndex: 2)),
           (route) => false,
@@ -94,45 +117,54 @@ class _AddMenuScreenState extends State<AddMenuScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              CustomTextField(
+                hint: "Nama Menu",
+                icon: Icons.fastfood,
                 controller: _namaController,
-                decoration: const InputDecoration(labelText: "Nama Menu"),
                 validator:
                     (value) =>
                         value!.isEmpty ? "Nama menu tidak boleh kosong" : null,
               ),
-              TextFormField(
+              const SizedBox(height: 10),
+              CustomTextField(
+                hint: "Kategori",
+                icon: Icons.category,
                 controller: _kategoriController,
-                decoration: const InputDecoration(labelText: "Kategori"),
                 validator:
                     (value) =>
                         value!.isEmpty ? "Kategori tidak boleh kosong" : null,
               ),
-              TextFormField(
-                controller: _hargaController,
-                decoration: const InputDecoration(labelText: "Harga"),
+              const SizedBox(height: 10),
+              CustomTextField(
+                hint: "Harga",
+                icon: Icons.attach_money,
                 keyboardType: TextInputType.number,
+                controller: _hargaController,
                 validator:
                     (value) =>
                         value!.isEmpty ? "Harga tidak boleh kosong" : null,
               ),
-              TextFormField(
-                controller: _stokController,
-                decoration: const InputDecoration(labelText: "Stok"),
+              const SizedBox(height: 10),
+              CustomTextField(
+                hint: "Stok",
+                icon: Icons.inventory,
                 keyboardType: TextInputType.number,
+                controller: _stokController,
                 validator:
                     (value) =>
                         value!.isEmpty ? "Stok tidak boleh kosong" : null,
               ),
-              TextFormField(
-                controller: _deskripsiController,
-                decoration: const InputDecoration(labelText: "Deskripsi"),
+              const SizedBox(height: 10),
+              CustomTextField(
+                hint: "Deskripsi",
+                icon: Icons.description,
                 maxLines: 3,
+                controller: _deskripsiController,
                 validator:
                     (value) =>
                         value!.isEmpty ? "Deskripsi tidak boleh kosong" : null,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               _image != null
                   ? Image.file(_image!, height: 150)
                   : const Text("Belum ada gambar dipilih"),
@@ -142,7 +174,7 @@ class _AddMenuScreenState extends State<AddMenuScreen> {
                 label: const Text("Pilih Gambar"),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: _submit, child: const Text("Simpan")),
+              CustomButton(text: "Simpan", onPressed: _submit),
             ],
           ),
         ),

@@ -54,21 +54,21 @@ class ApiService {
     }
   }
 
-  static Future<bool> deleteMenu(String namaMenu) async {
+static Future<bool> deleteMenu(int id) async {
     try {
-      final response = await http.post(
+      final res = await http.post(
         Uri.parse('$_baseUrl/menu/delete.php'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'nama_menu': namaMenu}),
+        body: jsonEncode({'id': id}),
       );
-
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(res.body);
       return data['status'] == true;
     } catch (e) {
-      print("Delete Error: $e");
+      print('Delete Error: $e');
       return false;
     }
   }
+
 
   //FAVORITE
   static Future<List<FavoriteModel>> fetchFavorites() async {

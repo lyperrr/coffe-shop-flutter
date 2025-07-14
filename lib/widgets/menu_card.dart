@@ -8,19 +8,23 @@ import '../providers/order_provider.dart';
 import '../screens/edit_menu_screen.dart';
 
 class MenuCard extends StatefulWidget {
+  final int id;
   final String name;
   final String price;
   final String kategori;
   final int quantity;
   final String imageBase64;
+  final VoidCallback onDeleted;
 
   const MenuCard({
     super.key,
+    required this.id,
     required this.name,
     required this.price,
     required this.kategori,
     required this.quantity,
     required this.imageBase64,
+    required this.onDeleted,
   });
 
   @override
@@ -34,6 +38,14 @@ class _MenuCardState extends State<MenuCard> {
     setState(() {
       if (orderQuantity < widget.quantity) {
         orderQuantity++;
+      }
+    });
+  }
+
+  void _decreaseQuantity() {
+    setState(() {
+      if (orderQuantity > 0) {
+        orderQuantity--;
       }
     });
   }
@@ -53,19 +65,12 @@ class _MenuCardState extends State<MenuCard> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(ctx).pop();
-
-                  // Call API delete (Ganti dengan ID asli)
-                  final success = await ApiService.deleteMenu(
-                    widget.name,
-                  ); // Ganti param sesuai API
-
+                  final success = await ApiService.deleteMenu(widget.id);
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Menu berhasil dihapus")),
                     );
-
-                    // Hapus dari tampilan
-                    setState(() => orderQuantity = 0);
+                    widget.onDeleted();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Gagal menghapus menu")),
@@ -77,14 +82,6 @@ class _MenuCardState extends State<MenuCard> {
             ],
           ),
     );
-  }
-
-  void _decreaseQuantity() {
-    setState(() {
-      if (orderQuantity > 0) {
-        orderQuantity--;
-      }
-    });
   }
 
   @override
@@ -99,7 +96,6 @@ class _MenuCardState extends State<MenuCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gambar + tombol favorite dan edit
           Stack(
             children: [
               Container(
@@ -124,13 +120,8 @@ class _MenuCardState extends State<MenuCard> {
                             height: 120,
                           ),
                         )
-                        : const Icon(
-                          Icons.image,
-                          size: 40,
-                          color: anActiveItems,
-                        ),
+                        : const Icon(Icons.image, size: 40, color: Colors.grey),
               ),
-              // Favorite button
               Positioned(
                 top: 8,
                 right: 8,
@@ -143,11 +134,10 @@ class _MenuCardState extends State<MenuCard> {
                   child: const Icon(
                     Icons.favorite,
                     size: 20,
-                    color: anActiveItems,
+                    color: Colors.red,
                   ),
                 ),
               ),
-              // Edit button
               Positioned(
                 top: 8,
                 left: 8,
@@ -159,12 +149,12 @@ class _MenuCardState extends State<MenuCard> {
                         builder:
                             (context) => EditMenuScreen(
                               menu: MenuModel(
-                                id: 0, // Ganti sesuai data asli jika ada
+                                id: widget.id,
                                 namaMenu: widget.name,
                                 kategori: widget.kategori,
                                 harga: widget.price,
                                 stok: widget.quantity,
-                                deskripsi: '', // Bisa diisi jika ada
+                                deskripsi: '',
                                 imageBase64: widget.imageBase64,
                               ),
                             ),
@@ -181,8 +171,6 @@ class _MenuCardState extends State<MenuCard> {
                   ),
                 ),
               ),
-
-              // Delete button
               Positioned(
                 top: 50,
                 left: 8,
@@ -204,8 +192,6 @@ class _MenuCardState extends State<MenuCard> {
               ),
             ],
           ),
-
-          // Konten menu
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Column(
@@ -213,14 +199,10 @@ class _MenuCardState extends State<MenuCard> {
               children: [
                 Chip(
                   label: Text(
-                    widget.kategori.isNotEmpty ? widget.kategori : 'Kategori',
+                    widget.kategori,
                     style: const TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
                   ),
                   backgroundColor: backgroundColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  visualDensity: VisualDensity.compact,
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -241,8 +223,6 @@ class _MenuCardState extends State<MenuCard> {
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
-
-                // Counter +/-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -256,11 +236,7 @@ class _MenuCardState extends State<MenuCard> {
                     _circleButton(Icons.add, _increaseQuantity),
                   ],
                 ),
-
                 const SizedBox(height: 10),
-
-                // Tombol keranjang
-                // Tombol keranjang
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -276,14 +252,12 @@ class _MenuCardState extends State<MenuCard> {
                             imageBase64: widget.imageBase64,
                           ),
                         );
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Item ditambahkan ke keranjang'),
                           ),
                         );
-
-                        setState(() => orderQuantity = 0); // reset counter
+                        setState(() => orderQuantity = 0);
                       }
                     },
                     child: Container(

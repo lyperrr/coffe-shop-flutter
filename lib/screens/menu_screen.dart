@@ -147,11 +147,17 @@ class _MenuContentState extends State<MenuContent> {
                   itemBuilder: (context, index) {
                     final item = menus[index];
                     return MenuCard(
+                      id: item.id!,
                       name: item.namaMenu,
                       price: item.harga,
                       kategori: item.kategori,
                       quantity: item.stok,
                       imageBase64: item.imageBase64,
+                      onDeleted: () {
+                        setState(() {
+                          _futureMenus = ApiService.fetchMenus();
+                        });
+                      },
                     );
                   },
                 );
