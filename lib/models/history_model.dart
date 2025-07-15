@@ -1,38 +1,31 @@
-class HistoryItem {
-  final int menuId;
-  final int jumlah;
-  final double subtotal;
-
-  HistoryItem({
-    required this.menuId,
-    required this.jumlah,
-    required this.subtotal,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {'menu_id': menuId, 'jumlah': jumlah, 'subtotal': subtotal};
-  }
-}
-
 class HistoryModel {
-  final String namaPelanggan;
-  final double totalHarga;
-  final String metodePembayaran;
-  final List<HistoryItem> items;
+  final String name;
+  final String price;
+  final int quantity;
+  final String imageBase64;
 
   HistoryModel({
-    required this.namaPelanggan,
-    required this.totalHarga,
-    required this.metodePembayaran,
-    required this.items,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.imageBase64,
   });
+
+  factory HistoryModel.fromJson(Map<String, dynamic> json) {
+    return HistoryModel(
+      name: json['name'],
+      price: json['price'],
+      quantity: json['quantity'],
+      imageBase64: json['imageBase64'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
-      'nama_pelanggan': namaPelanggan,
-      'total_harga': totalHarga,
-      'metode_pembayaran': metodePembayaran,
-      'items': items.map((e) => e.toJson()).toList(),
+      'name': name,
+      'price': price,
+      'quantity': quantity,
+      'imageBase64': imageBase64,
     };
   }
 }

@@ -5,8 +5,10 @@ import 'package:project_uas/constants/colors.dart';
 import 'package:project_uas/services/api_service.dart';
 import '../models/menu_model.dart';
 import '../models/favorite_model.dart';
+import '../models/history_model.dart';
 import '../providers/order_provider.dart';
 import '../providers/favorite_provider.dart';
+import '../providers/history_provider.dart';
 import '../screens/edit_menu_screen.dart';
 
 class MenuCard extends StatefulWidget {
@@ -278,6 +280,7 @@ class _MenuCardState extends State<MenuCard> {
                   child: GestureDetector(
                     onTap: () {
                       if (orderQuantity > 0) {
+                        // Tambah ke keranjang
                         Provider.of<OrderProvider>(
                           context,
                           listen: false,
@@ -289,11 +292,29 @@ class _MenuCardState extends State<MenuCard> {
                             imageBase64: widget.imageBase64,
                           ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Item ditambahkan ke keranjang'),
+
+                        // Tambah ke history
+                        Provider.of<HistoryProvider>(
+                          context,
+                          listen: false,
+                        ).addToHistory(
+                          HistoryModel(
+                            name: widget.name,
+                            price: widget.price,
+                            quantity: orderQuantity,
+                            imageBase64: widget.imageBase64,
                           ),
                         );
+
+                        // Feedback
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Item ditambahkan ke keranjang & history',
+                            ),
+                          ),
+                        );
+
                         setState(() => orderQuantity = 0);
                       }
                     },
