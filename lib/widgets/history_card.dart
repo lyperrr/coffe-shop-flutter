@@ -6,8 +6,9 @@ import '../constants/colors.dart';
 
 class HistoryCard extends StatelessWidget {
   final HistoryModel history;
+  final VoidCallback onDelete;
 
-  const HistoryCard({super.key, required this.history});
+  const HistoryCard({super.key, required this.history, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +81,12 @@ class HistoryCard extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+
+          // Tombol Hapus
+          IconButton(
+            onPressed: onDelete,
+            icon: const Icon(Icons.delete, color: Colors.red),
           ),
         ],
       ),

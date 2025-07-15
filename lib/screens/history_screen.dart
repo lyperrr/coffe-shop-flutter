@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'dart:convert';
-import '../providers/history_provider.dart';
 import '../constants/colors.dart';
-import '../widgets/history_card.dart'; // pastikan path ini sesuai
+import '../providers/history_provider.dart';
+import '../widgets/history_card.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -15,41 +13,41 @@ class HistoryScreen extends StatelessWidget {
     final historyList = historyProvider.historyList;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('Riwayat Pesanan'),
-        backgroundColor: activeItems,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              historyProvider.clearHistory();
-            },
+        toolbarHeight: 100,
+        backgroundColor: primaryColor,
+        centerTitle: true,
+        title: const Text(
+          'RIWAYAT PEMBELIAN',
+          style: TextStyle(
+            color: textWhite,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
-        ],
+        ),
+        elevation: 0,
       ),
       body:
           historyList.isEmpty
-              ? const Center(child: Text('Belum ada riwayat pesanan.'))
+              ? const Center(
+                child: Text(
+                  'Belum ada riwayat pembelian.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
               : ListView.builder(
                 itemCount: historyList.length,
                 itemBuilder: (context, index) {
                   final item = historyList[index];
-                  return Dismissible(
-                    key: UniqueKey(),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    onDismissed: (direction) {
-                      historyProvider.removeFromHistory(index);
+                  return HistoryCard(
+                    history: item,
+                    onDelete: () {
+                      historyProvider.removeFromHistory(item.name);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Riwayat dihapus')),
                       );
                     },
-                    child: HistoryCard(history: item),
                   );
                 },
               ),

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/history_model.dart';
 
-class HistoryProvider extends ChangeNotifier {
+class HistoryProvider with ChangeNotifier {
   final List<HistoryModel> _historyList = [];
 
   List<HistoryModel> get historyList => _historyList;
 
-  void addToHistory(HistoryModel item) {
-    _historyList.add(item);
+  void addToHistory(HistoryModel history) {
+    _historyList.add(history);
+    notifyListeners();
+  }
+
+  void removeFromHistory(String name) {
+    _historyList.removeWhere((item) => item.name == name);
     notifyListeners();
   }
 
@@ -15,6 +20,4 @@ class HistoryProvider extends ChangeNotifier {
     _historyList.clear();
     notifyListeners();
   }
-
-  void removeFromHistory(int index) {}
 }
